@@ -1,0 +1,95 @@
+---
+title: "Statistical Inference Course Project (Part 2)"
+author: "MsGret"
+date: "10 August 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+The project consists of two parts: simulation (part 1) and basic inferential data analysis (part 2). In part 2 we do basic data analysis base on the ToothGrowth data in the R datasets package.
+
+## Load the ToothGrowth data
+
+Load the data and perform some basic exploratory data analyses
+
+```{r}
+data("ToothGrowth")
+dim(ToothGrowth)
+head(ToothGrowth)
+str(ToothGrowth)
+
+plot(ToothGrowth)
+```
+
+## Basic Exploratory Data Analyses
+
+From the plot we can see that the variable dose takes three values. Use these variable as factor and plot results of basic exploratory data analyses.
+
+```{r}
+ToothGrowth$dose<-as.factor(ToothGrowth$dose)
+
+require(ggplot2)
+ggplot(data = ToothGrowth, aes(x = dose, y = len, fill = dose)) +
+    geom_boxplot() +
+    facet_grid(. ~ supp) +
+    labs(x = "Dose in milligrams per day", y = "Tooth length",
+         title = "Tooth length vs Dose by Supplement type") +
+    scale_fill_discrete(name = "Dose")
+```
+
+Plots show the increase in tooth length with increasing doses.
+
+```{r}
+ggplot(data = ToothGrowth, aes(x = supp, y = len, fill = supp)) +
+    geom_boxplot() +
+    facet_grid(. ~ dose) +
+    labs(x = "Supplement type", y = "Tooth length",
+         title = "Tooth length vs Supplement type by Dose") +
+    scale_fill_discrete(name = "Supplement type")
+```
+
+Orange juice (coded as OJ) is more effective than ascorbic acid (a form of vitamin C and coded as VC) for tooth growth at doses of 0.5 and 1 milligrams per day.
+
+## Compare tooth growth by supp
+
+Use hypothesis test to compare tooth growth by supp.
+
+Delivery methods have no impact on tooth growth.
+H_0: Difference of means (OJ and VC) is 0.
+H_A: Difference of means (OJ and VC) is not 0.
+
+```{r}
+t.test(len ~ supp, data = ToothGrowth)
+```
+
+The p-value of this test was 0.06 (greater than the significance level alpha = 0.05) and confidence interval of the test contains zero. We can say that there is not enough evidence to reject the null hypothesis that supplement types have no impact on Tooth growth.
+
+## Compare tooth growth by dose
+
+Use hypothesis test to compare tooth growth by dose.
+
+Doses have no impact on tooth growth.
+H_0: Difference of means (.5 and 1, or .5 and 2, or 1 and 2) is 0.
+H_A: Difference of means (.5 and 1, or .5 and 2, or 1 and 2) is not 0.
+
+```{r}
+t.test(len ~ dose, data = ToothGrowth, subset = ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1)
+t.test(len ~ dose, data = ToothGrowth, subset = ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2)
+t.test(len ~ dose, data = ToothGrowth, subset = ToothGrowth$dose == 1 | ToothGrowth$dose == 2)
+```
+
+In all three cases the p-value of this test less than the significance level alpha = 0.05 and confidence intervals of the test don't contain zero. We can say that there is enough evidence to reject the null hypothesis that doses have no impact on Tooth growth.
+
+## Conclusion
+
+According to the analysis performed, we can conclude that
+
+- supplement types have no impact on Tooth growth;
+- doses have impact on Tooth growth.
+
+The conclusions are based on the following assumptions:
+
+- the sample is representative of the pig population;
+- observations are independent.

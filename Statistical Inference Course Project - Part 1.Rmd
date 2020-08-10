@@ -1,0 +1,102 @@
+---
+title: "Statistical Inference Course Project (Part 1)"
+author: "MsGret"
+date: "10 August 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+The project consists of two parts: simulation (part 1) and basic inferential data analysis (part 2).
+In part 1 we investigate the exponential distribution in R and compare it with the Central Limit Theorem.
+
+The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. We will investigate the distribution of averages of 40 exponentials.
+
+## Simulations
+
+Set lambda for all of the simulations, number of exponentials, number of simulations:
+
+```{r}
+lambda <- .2
+nexp <- 40
+ns <- 1000
+```
+
+Simulate the distribution of 1000 averages of 40 exponentials:
+
+```{r}
+set.seed(2020)
+mns = NULL
+for (i in 1 : ns)
+    mns = as.data.frame(rbind(mns, mean(rexp(n = nexp, rate = lambda))))
+names(mns) <- "average"
+```
+
+Plot result of simulation:
+```{r}
+require(ggplot2)
+ggplot(data = mns, aes(x = average)) +
+    geom_histogram(aes(y = ..density..),
+                   binwidth = (max(mns$average) - min(mns$average)) / 30,
+                   colour = "green") +
+    labs(x = "Simulation Mean", y = "Density",
+         title = "Distribution of Averages of 40 Exponentials (1000 Simulations)")
+```
+
+
+## Sample Mean versus Theoretical Mean
+
+The theoretical mean of exponential distribution is 1/lambda. Find the mean from the simulation:
+
+```{r}
+theor_mean <- 1 / lambda
+theor_mean
+
+sim_mean <- mean(mns$average)
+sim_mean
+
+diff_mean <- abs(sim_mean - theor_mean)
+```
+
+As we can see in plot bellow Sample Mean and Theoretical Mean are very close (difference is `r diff_mean`).
+
+## Sample Variance versus Theoretical Variance
+
+The theoretical standard deviation of exponential distribution is 1/lambda. Find the Theoretical Variance and Sample Variance of 40 exponentials:
+
+
+```{r}
+theor_var <- (1 / lambda^2) / nexp
+theor_var
+
+sim_var <- var(mns$average)
+sim_var
+
+diff_var <- abs(sim_var - theor_var)
+```
+
+As we can see in plot bellow Sample Variance and Theoretical Variance are very close (difference is `r diff_var`).
+
+## Plot Results
+
+Plot the theoretical (red line) and simulation (yellow dashed line) means and :
+
+```{r}
+ggplot(data = mns, aes(x = average)) +
+    geom_histogram(aes(y = ..density..),
+                   binwidth = (max(mns$average) - min(mns$average)) / 30,
+                   colour = "green") +
+    stat_function(fun = dnorm, args = list(mean = sim_mean, sd = sqrt(sim_var)),
+                  colour = "yellow", size = 1.5, linetype = 2) +
+    stat_function(fun = dnorm, args = list(mean = theor_mean, sd = sqrt(theor_var)),
+                  size = 1, colour = "red") +
+    geom_vline(xintercept = theor_mean, colour = "red", size = 1) +
+    geom_vline(xintercept = sim_mean, colour="yellow", size = 1.5, linetype = 2) +
+    labs(x = "Simulation Mean", y = "Density",
+         title = "Theoretical Distribution versus Sample Result",
+         caption = "red - theoretical mean and distribution,
+         yellow - sample mean and distribution")
+```
+
+
