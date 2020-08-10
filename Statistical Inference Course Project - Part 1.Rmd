@@ -78,7 +78,7 @@ diff_var <- abs(sim_var - theor_var)
 
 As we can see in plot bellow Sample Variance and Theoretical Variance are very close (difference is `r diff_var`).
 
-## Plot Results
+## Distribution
 
 Plot the theoretical (red line) and simulation (yellow dashed line) means and :
 
